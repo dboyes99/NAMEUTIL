@@ -64,7 +64,14 @@ if disk.status = DISK_RW then disk.writable = VAL_true
 
 /* OK, ready to go -- let's do it */
 
+'PIPE <' file.spec ,
+     '| APPEND STEM entry.' ,
+     '| > ' file.spec 
 
+if rc != RC_OK then do 
+    rc = RC_OTHERERR 
+    signal exit-program
+    end
 
 
 exit-program:
