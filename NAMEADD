@@ -5,14 +5,16 @@
 /*      file.type - type of file to add record   */
 /*      file.mode - mode of file to add record   */
 /*      file.dupkeys - allow dup keys  Y/N       */
-/*      file.index - maintain index    Y/N       */
-/*      file.indexname - fn of index file        */
-/*      file.indextype - ft of index file        */
-/*      file.indexmode - fm of index file        */
+/*      file.index - maintain index    Y/N  (TBD)*/
+/*      file.indexname - fn of index file   (TBD)*/
+/*      file.indextype - ft of index file   (TBD)*/
+/*      file.indexmode - fm of index file   (TBD)*/
 /*                                               */
-/*       entry.key = key value for entry         */
-/*       entry.<fieldname> fieldnames            */
-/*       entry.<fieldname>.<value> value         */
+/*       row 1, key 'key' value=searchkey is     */
+/*           always record identifier            */
+/*       row = 2-n, key = 1 value=2              */
+/*       entry.row.key fieldnames                */
+/*       entry.row.key.value value               */
 /*                                               */
 /* Output:                                       */
 /*    updated database file                      */
@@ -26,4 +28,44 @@
 
 call fru_constants
 
-/* main program */
+search_keytag = ':'||entry.1.1.1
+search_keyvalue = entry.1.1.2
+recordid = search_keytag || '.' || search_keyvalue
+file.spec = file.name file.type file.mode
+
+/* make sure file is present */
+
+file.present = VAL_No
+'ESTATE' file.spec
+if rc = RC_OK then file.present = VAL_true
+
+/* search for record before we try to add it */
+/* we don't need write access for that */
+
+if file.present then do 
+    'NAMEFIND' search_keytag search_keyvalue '( FILE(' file.spec '} BREAKTAG' search_keytag 'STEM results. '
+    if results.0 > 1 then entry.duplicate = VAL_true
+    if file.dupkeys = VAL_No then do 
+        rc = RC_DUPKEY
+        signal exit-program
+    end 
+end
+
+/* ok, file exists and the record is not a duplicate ... */
+/* now, make sure the disk is writable */
+
+disk.writable = VAL_false
+'PIPE CMS QUERY DISK' file.mode ,partial
+        '| DROP 1', 
+        '| VAR dataline'
+
+parse var dataline . . . disk.status .
+if disk.status = DISK_RW then disk.writable = VAL_true
+
+/* OK, ready to go -- let's do it */
+
+
+
+
+exit-program:
+    return rc 
