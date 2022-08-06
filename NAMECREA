@@ -1,0 +1,97 @@
+/* REXX */
+/* NAMECREA - create a new NAMES file in designated location                */
+/* COPYLIB: NAMECREA                                                        */
+/* Input:                                                                   */
+/*     newfile.name = name of file to create                                */
+/*     newfile.type = filetype of file to create                            */
+/*                 (default NAMES)                                          */
+/*     newfile.mode = filemode of file to create                            */
+/*                 (default A)                                              */
+/*                                                                          */
+/* Output: new file */
+/*    */
+/* Return codes: */
+/* 0 = success with no errors */
+/* 8 = No value supplied for required parm, default substituted
+/* 16 = success but no space to insert initial record */
+/* 28 = file already exists on specified disk */
+/* 99 = unspecified unhandled error */
+
+/* initialize constants */
+    RC_OK = 0
+    RC_MISSINGVALUE = 8
+    RC_DISKRO= 12
+    RC_NOSPACE = 16
+    RC_FILEEXISTS = 28
+    RC_OTHERERR = 99
+    VAL_CHAR_NULL = ''
+    VAL_NUM_NULL = 0
+    DISK_RO = 'R/O'
+    DISK_RW = 'R/W'
+    DISK_MDISK = 'MDISK'
+    DISK_SFS = 'DIR'
+  
+
+  /* initialize work variables */
+    rc = RC_OK
+    savrc = RC_OK
+    newfile.writable = 0 /* default to not writable */
+    DEFAULT_FN = 'GENERIC'
+    DEFAULT_FT = 'NAMES'
+    DEFAULT_FM = 'A'
+  
+
+  /* check if we need to default name, type and filemode */
+    if newfile.type = VAL_CHAR_NULL then do
+        newfile.type = DEFAULT_FT     /* default file type to NAMES if blank */
+        end
+    if newfile.mode = VAL_CHAR_NULL then do   /* default file mode to A */
+        newfile.mode = DEFAULT_FM
+        end
+    if newfile.name = VAL_CHAR_NULL then do   /* do something even if they don't know what they want */
+        newfile.name = DEFAULT_FN /* kinda need to know this, so raise flag even though you fixed it */
+        rc=RC_MISSINGVALUE
+        end
+
+/* construct new filespec */
+    newfile.spec = newfile.name newfile.type newfile.mode
+    upper newfile.spec
+
+/* test whether newfile.mode is writable */
+'PIPE CMS QUERY DISK' newfile.mode , 
+    '| DROP 1' ,
+    '| VAR diskinfo'
+parse var diskinfo disk.label disk.vdev disk.accessmode disk.status .
+
+if disk.status = DISK_RW then do 
+    disk.writable = true
+    end
+else do
+    disk.writable = false
+    rc=RC_DISKRO
+    signal exit-program
+    end
+
+/* find out if desired file already exists */
+'ESTATE' newfile.spec
+if rc = RC_FILEEXISTS then do
+    say 'File' newfile.spec 'already exists on disk' newfile.mode'. Try again with a different name or type.'
+    signal exit-program
+    end
+
+if disk.writable then do
+    prime.1 = '* File' newfile.spec 'created with NAMECREA'
+    prime.2 = ':key.NULL'
+    prime.3 = '     :data.DUMMY'
+
+'PIPE STEM prime. | > ' newfile.spec    /* OK, do the deed */
+
+if rc <> RC_OK then do
+    say 'Something wicked this way comes...'
+    rc=RC_OTHERERR
+    signal exit-program
+    end
+
+
+exit-program:
+    return rc

@@ -1,0 +1,29 @@
+/* REXX */
+/* NAMEADD - add entry to NAMES file */
+/* Input:                                        */
+/*      file.name - name of file to add record   */
+/*      file.type - type of file to add record   */
+/*      file.mode - mode of file to add record   */
+/*      file.dupkeys - allow dup keys  Y/N       */
+/*      file.index - maintain index    Y/N       */
+/*      file.indexname - fn of index file        */
+/*      file.indextype - ft of index file        */
+/*      file.indexmode - fm of index file        */
+/*                                               */
+/*       entry.key = key value for entry         */
+/*       entry.<fieldname> fieldnames            */
+/*       entry.<fieldname>.<value> value         */
+/*                                               */
+/* Output:                                       */
+/*    updated database file                      */
+/*                                               */
+/* Return codes:                                 */
+/* 0 = success                                   */
+/* 16 = duplicate key                            */
+/* 28 = database not found                       */
+/* 80 = disk not writable                        */
+/* 999 = something else happened                 */
+
+call fru_constants
+
+/* main program */

@@ -1,0 +1,84 @@
+/* REXX */
+/* NAMERASE - erase entire NAMES file */
+/* Input:
+/*     file.name = name of file to erase */
+/*     file.type = file type to erase */
+/*     file.mode = file mode to erase */
+/*     file.confirm = Y (no prompt) */
+/*                  = N (prompt) */
+/* Output: None (if file.confirm = Y) */
+/*  */
+/* Return codes:                       */
+/*   0 = delete successful             */
+/*   16 = disk is R/O                  */
+/*   28 = file not found               */
+/*  999 = other error happened         */
+
+ /* define commonly used constants */
+call fru_constants  
+
+/* local exec variables */
+DEFAULT_FT = 'NAMES'
+DEFAULT_FM = 'A'
+
+if file.type = VAL_CHAR_NULL then file.type = DEFAULT_FT
+if file.mode = VAL_CHAR_NULL then file.mode = DEFAULT_FM
+if file.name = VAL_CHAR_NULL then do
+    say 'Invalid input parameter: file.name NULL. Sorry, nothing to do. Giving up.'
+    rc=RC_OTHERERR
+    signal exit-program
+    end
+
+file.spec = file.name file.type file.mode
+
+/* check if disk is available */
+'PIPE CP QUERY DISK' file.mode ,
+    '| DROP 1' ,
+    '| VAR dataline'
+
+parse var dataline . . . disk.status .
+if disk.status != DISK_RW then do 
+    say 'Unable to modify disk' file.mode '- no write permission. Giving up.'
+    rc = RC_NOTWRITABLE
+    signal exit-program  /* bail */
+    end
+else do
+    disk.writeable = VAL_true
+    end
+
+/* does file exist? */
+'ESTATE' file.spec
+if rc != RC_OK then do 
+    say 'No such file. Giving up'
+    rc = RC_NOTFOUND
+    signal exit-program
+    end
+
+if disk.writable and file.confirm = VAL_Yes then do
+    'ERASE' file.spec
+    if rc = RC_OK then do
+        rc = RC_OK
+        signal exit-program
+    end
+else if disk.writable and file.confirm != VAL_No then do
+    say'About to permanently delete' file.spec '-- is this really OK (YES/NO)?'
+    parse pull yn
+    upper yn
+    select
+        when abbrev('YES',yn) do
+            'ERASE' file.spec
+            rc = RC_OK
+            signal exit-program
+            end
+        otherwise do
+            say 'Delete abandoned'
+            rc RC_OTHERERR
+            signal exit-program
+        end
+    end
+end
+
+exit-program:
+    return rc
+
+/* $$INCLUDE fru_constants    */
