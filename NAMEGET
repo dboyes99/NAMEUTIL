@@ -1,0 +1,15 @@
+/* REXX **********************************************/
+/* NAMEGET - retrieves specific entry in NAMES file  */
+/*                                                   */
+/* Input:                                            */
+/*   file.name  - filename to search                 */
+/*   file.type  - filetype to search                 */
+/*   file.mode  - filemode to search                 */
+/*                                                   */
+/*   entry.key - tag name to search                  */
+/*   entry.value - tag value to search               */
+/*                                                   */
+/*  Output:                                          */
+/*    result.x - results of query                    */
+/*                                                   */
+/*****************************************************/

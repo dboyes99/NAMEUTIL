@@ -43,7 +43,7 @@ if rc = RC_OK then file.present = VAL_true
 /* we don't need write access for that */
 
 if file.present then do 
-    'NAMEFIND' search_keytag search_keyvalue '( FILE(' file.spec '} BREAKTAG' search_keytag 'STEM results. '
+    'NAMEFIND' search_keytag search_keyvalue '( FILE(' file.spec ') BREAKTAG' search_keytag 'STEM results. '
     if results.0 > 1 then entry.duplicate = VAL_true
     if file.dupkeys = VAL_No then do 
         rc = RC_DUPKEY
@@ -72,7 +72,6 @@ if rc != RC_OK then do
     rc = RC_OTHERERR 
     signal exit-program
     end
-
 
 exit-program:
     return rc 

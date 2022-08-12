@@ -1,2 +1,25 @@
-/* REXX */
-/* NAMEDEL - delete entry from NAMES file */
+/* REXX ***********************************************************/
+/* NAMEDEL - delete entry from NAMES file                         */
+/* Input:                                                         */
+/*     file.name - filename to access                             */
+/*     file.type - filetype to access                             */
+/*     file.mode - filemode to access                             */
+/*     file.tolerate_notfound - tolerate record not found         */
+/*                                                                */
+/*     entry.key - key tag name for item to delete                */
+/*     entry.value - key tag value for item to delete             */
+/*                                                                */
+/* Output:                                                        */
+/*      updated file                                              */
+/*                                                                */
+/* Return Codes:                                                  */
+/*       RC_OK - entry was deleted                                */
+/*       RC_NOTFOUND - entry not found                            */
+/*       RC_OTHERERR - something else went wrong                  */
+/*                                                                */
+/******************************************************************/
+
+Main-Program:
+   call fru-constants     /* define some handy stuff              */
+   call test_diskrw       /* is file on writable disk             */
+   call test_fileexists   /* is file still there?                 */
