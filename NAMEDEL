@@ -21,5 +21,9 @@
 
 Main-Program:
    call fru-constants     /* define some handy stuff              */
+   call nd_validate_parms
    call test_diskrw       /* is file on writable disk             */
    call test_fileexists   /* is file still there?                 */
+
+
+nd_validate_parms:

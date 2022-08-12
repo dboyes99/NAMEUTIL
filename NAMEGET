@@ -9,7 +9,7 @@
 /*   entry.key - tag name to search                  */
 /*   entry.value - tag value to search               */
 /*                                                   */
-/*  Output:                                          */
+/* Output:                                           */
 /*    result.x - results of query                    */
 /*                                                   */
 /*****************************************************/
