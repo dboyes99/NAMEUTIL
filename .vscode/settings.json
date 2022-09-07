@@ -40,5 +40,6 @@
         "yml",
         "COBOL",
         "ACUCOBOL"
-    ]
+    ],
+    "vmssoftware.project-dep.buildName": "DEBUG"
 }
