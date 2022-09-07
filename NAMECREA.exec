@@ -1,4 +1,5 @@
 /* REXX */
+/****************************************************************************/
 /* NAMECREA - create a new NAMES file in designated location                */
 /* COPYLIB: NAMECREA                                                        */
 /* Input:                                                                   */
@@ -8,14 +9,20 @@
 /*     newfile.mode = filemode of file to create                            */
 /*                 (default A)                                              */
 /*                                                                          */
-/* Output: new file */
-/*    */
-/* Return codes: */
-/* 0 = success with no errors */
-/* 8 = No value supplied for required parm, default substituted
-/* 16 = success but no space to insert initial record */
-/* 28 = file already exists on specified disk */
-/* 99 = unspecified unhandled error */
+/* Output: new file                                                         */
+/*                                                                          */
+/* Return codes:                                                            */
+/* 0 = success with no errors                                               */
+/* 8 = No value supplied for required parm, default substituted             */
+/* 16 = success but no space to insert initial record                       */
+/* 28 = file already exists on specified disk                               */
+/* 99 = unspecified unhandled error                                         */
+/*                                                                          */
+/* Uses:                                                                    */
+/*     fru_constants                                                        */
+/*     message                                                              */
+/*                                                                          */
+/****************************************************************************/
 
 /* initialize constants */
     RC_OK = 0
