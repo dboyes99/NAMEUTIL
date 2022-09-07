@@ -4,7 +4,7 @@
 /*     file.name - filename to access                             */
 /*     file.type - filetype to access                             */
 /*     file.mode - filemode to access                             */
-/*     file.tolerate_notfound - tolerate record not found         */
+/*     file.tolerate_notfound - tolerate record not found (T/F)   */
 /*                                                                */
 /*     entry.key - key tag name for item to delete                */
 /*     entry.value - key tag value for item to delete             */
@@ -25,12 +25,22 @@
 
 Main-Program:
    call fru-constants     /* define some handy stuff              */
-   call nd_validate_parms /* make sure we have all the info       */
+   call namedel_validate_parms /* make sure we have all the info  */
+   disk.filemode = file.mode
    call test_diskrw       /* is file on writable disk             */
-   call test_fileexists   /* is file still there?                 */
+   call test_fileexists   /* is file there?                       */
+   call namedel_entry_present /* is that record in the file?      */
+   if entry.present & (disk.writable & file.exists) then do
+      call namedel_filter_out_entry
+      call namedel_write_out_new_file
+      call namedel_exit_routine_all_good
+   end
 
+/******************************************************************/
+/* Subroutines                                                    */
+/******************************************************************/
 
-nd_validate_parms:
+namedel_validate_parms:
    
    /* do we have the full filespec we want to manipulate          */
    
@@ -64,4 +74,18 @@ nd_validate_parms:
       call message "RED"
       rc = RC_OTHERERR
    end
+return rc
+
+namedel_entry_present:
+   entry.present = VAL_false
+   call NAMEFIND  /* is entry in the file? */
+   if rc = RC_OK then do
+      entry.present = VAL_true /* yes */
+      rc = RC_OK /* all well */
+      signal exit_namedel_entry_present_routine
+   end
+   if file.tolerate_notfound = VAL_true then do
+      rc=RC_OK /* they said not finding it is OK /
+   end
+exit_namedel_entry_present_routine:
 return rc
