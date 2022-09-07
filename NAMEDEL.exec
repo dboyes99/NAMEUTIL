@@ -17,13 +17,51 @@
 /*       RC_NOTFOUND - entry not found                            */
 /*       RC_OTHERERR - something else went wrong                  */
 /*                                                                */
+/* Uses:                                                          */
+/*    fru-constants                                               */
+/*    test_diskrw                                                 */
+/*    test_fileexists                                             */
 /******************************************************************/
 
 Main-Program:
    call fru-constants     /* define some handy stuff              */
-   call nd_validate_parms
+   call nd_validate_parms /* make sure we have all the info       */
    call test_diskrw       /* is file on writable disk             */
    call test_fileexists   /* is file still there?                 */
 
 
 nd_validate_parms:
+   
+   /* do we have the full filespec we want to manipulate          */
+   
+   if file.name = VAR_CHAR_NULL then do
+      message = "File name token missing - can't continue"
+      call message "RED"
+      rc = RC_OTHERERR
+   end
+   if file.type = VAR_CHAR_NULL then do
+      message = "File type token missing - can't continue"
+      call message "RED"
+      rc = RC_OTHERERR
+   end
+   if file.mode = VAR_CHAR_NULL then do
+      message = "File mode token missing - assuming A"
+      call message "YELLOW"
+      file.mode = "A"
+      rc = RC_WARN
+   end
+   
+   /* do we have enough information to locate the part we want to  */
+   /* delete?                                                      */
+
+   if entry.key = VAL_CHAR_NULL then do
+      message = "Search key missing - can't continue"
+      call message "RED"
+      rc = RC_OTHERERR
+   end
+   if entry.value = VAL_CHAR_NULL then do
+      message = "Search key value missing - can't continue"
+      call message "RED"
+      rc = RC_OTHERERR
+   end
+return rc

@@ -25,6 +25,12 @@
 /* 28 = database not found                       */
 /* 80 = disk not writable                        */
 /* 999 = something else happened                 */
+/*                                               */
+/* Uses:                                         */
+/*      fru_constants                            */
+/*      message                                  */
+/*                                               */
+/*************************************************/
 
 call fru_constants
 
